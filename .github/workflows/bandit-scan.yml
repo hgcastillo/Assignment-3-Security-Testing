@@ -1,0 +1,41 @@
+name: Bandit Scan
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+    
+permissions:
+  contents: read # Required for actions/checkout
+
+jobs:
+  bandit:
+    name: Run Bandit Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10' # Specify a Python version
+
+      - name: Install Bandit
+        run: pip install bandit
+
+      - name: Run Bandit
+        # We use '|| true' so the workflow doesn't fail,
+        # allowing us to see the report.
+        # Bandit will exit with a non-zero code if it finds issues.
+        run: bandit -r . -f txt -o bandit-report.txt || true
+
+      - name: Upload Bandit Report
+        # This step uploads the report as an artifact
+        # so you can download and view it.
+        uses: actions/upload-artifact@v4
+        if: always() # Always run this step, even if bandit found issues
+        with:
+          name: bandit-report
+          path: bandit-report.txt
