@@ -1,0 +1,30 @@
+name: Super-Linter
+
+on:
+  push: # Runs on pushes to any branch
+    branches: [ main ]
+  pull_request: # Runs on pull requests targeting the main branch
+    branches: [ main ]
+    
+permissions:
+  contents: read
+  
+jobs:
+  lint:
+    name: Lint Code Base
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          # Fetches all history for all branches and tags
+          fetch-depth: 0
+
+      - name: Run Super-Linter
+        uses: super-linter/super-linter@v6
+        env:
+          # Set this to 'true' to have Super-Linter fix issues automatically
+          # and commit them back to the branch.
+          VALIDATE_ALL_CODEBASE: true
+          DEFAULT_BRANCH: main
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
